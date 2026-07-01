@@ -114,7 +114,137 @@
   tbody tr:nth-child(even){background:rgba(228,225,216,0.25);}
   a{color:var(--accent);}
   .case h2 + p{margin-top:12px;}
+
+  /* Floating "Contents" button — always visible, all screens */
+  details.floating-toc{
+    position:fixed; top:16px; right:16px; z-index:1000;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  details.floating-toc > summary{
+    list-style:none; cursor:pointer;
+    background:var(--ink); color:var(--paper);
+    padding:10px 16px; border-radius:24px;
+    font-size:13.5px; font-weight:600; letter-spacing:0.02em;
+    box-shadow:0 6px 20px rgba(0,0,0,0.18);
+    user-select:none;
+  }
+  details.floating-toc > summary::-webkit-details-marker{display:none;}
+  details.floating-toc > summary::before{content:"☰ "; margin-right:2px;}
+  details.floating-toc[open] > summary::before{content:"✕ ";}
+  details.floating-toc .panel{
+    position:absolute; top:48px; right:0;
+    background:var(--paper); color:var(--ink);
+    border:1px solid var(--rule);
+    border-radius:10px;
+    box-shadow:0 12px 36px rgba(0,0,0,0.18);
+    padding:16px 20px 20px;
+    width:min(340px, calc(100vw - 32px));
+    max-height:calc(100vh - 80px);
+    overflow-y:auto;
+    font-size:13.5px; line-height:1.55;
+  }
+  details.floating-toc .panel h4{
+    font-family:Charter,Georgia,serif;
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--muted); margin:16px 0 6px; font-weight:600;
+  }
+  details.floating-toc .panel h4:first-child{margin-top:0;}
+  details.floating-toc .panel ol{list-style:none; padding:0; margin:0;}
+  details.floating-toc .panel li{margin:2px 0;}
+  details.floating-toc .panel a{color:var(--ink); text-decoration:none; display:block; padding:2px 0;}
+  details.floating-toc .panel a:hover{color:var(--accent);}
 </style>
+
+<details class="floating-toc">
+  <summary>Contents</summary>
+  <div class="panel">
+    <h4>Part 1 · Foundations</h4>
+    <ol>
+      <li><a href="#s1">1. What system design is</a></li>
+      <li><a href="#s2">2. Client &amp; server</a></li>
+      <li><a href="#s3">3. HTTP &amp; APIs</a></li>
+      <li><a href="#s4">4. DNS</a></li>
+      <li><a href="#s5">5. Load balancers</a></li>
+      <li><a href="#s6">6. API gateway</a></li>
+      <li><a href="#s7">7. SQL vs NoSQL</a></li>
+      <li><a href="#s8">8. Indexes &amp; ACID</a></li>
+      <li><a href="#s9">9. Caching</a></li>
+      <li><a href="#s10">10. Message queues</a></li>
+      <li><a href="#s11">11. CDNs</a></li>
+      <li><a href="#s12">12. Object storage</a></li>
+      <li><a href="#s13">13. Rate limiting</a></li>
+      <li><a href="#s14">14. Auth</a></li>
+      <li><a href="#s15">15. Scaling</a></li>
+      <li><a href="#s16">16. CAP theorem</a></li>
+      <li><a href="#s17">17. Observability</a></li>
+    </ol>
+    <h4>Part 2 · Classic Problems</h4>
+    <ol>
+      <li><a href="#p1">URL shortener</a></li>
+      <li><a href="#p2">Chat app</a></li>
+      <li><a href="#p3">Notifications</a></li>
+      <li><a href="#p4">Ride booking</a></li>
+      <li><a href="#p5">Instagram feed</a></li>
+      <li><a href="#p6">Dropbox</a></li>
+      <li><a href="#p7">YouTube</a></li>
+      <li><a href="#p8">Payments</a></li>
+      <li><a href="#p9">Autocomplete</a></li>
+      <li><a href="#p10">Rate limiter</a></li>
+    </ol>
+    <h4>Part 3 · IoT / Mobile</h4>
+    <ol>
+      <li><a href="#i1">Mobile backend</a></li>
+      <li><a href="#i2">Sync</a></li>
+      <li><a href="#i3">Offline-first</a></li>
+      <li><a href="#i4">Push (deep)</a></li>
+      <li><a href="#i5">BLE setup</a></li>
+      <li><a href="#i6">Telemetry</a></li>
+      <li><a href="#i7">Time-series</a></li>
+      <li><a href="#i8">OTA firmware</a></li>
+    </ol>
+    <h4>Part 4 · Low-Level Design</h4>
+    <ol>
+      <li><a href="#l1">OOP basics</a></li>
+      <li><a href="#l2">SOLID</a></li>
+      <li><a href="#l3">Design patterns</a></li>
+      <li><a href="#l5">Thread safety</a></li>
+      <li><a href="#l6">LLD catalog</a></li>
+    </ol>
+    <h4>Part 5 · Interview</h4>
+    <ol>
+      <li><a href="#e1">45-min playbook</a></li>
+      <li><a href="#e2">LLD playbook</a></li>
+      <li><a href="#e3">Behavioral</a></li>
+      <li><a href="#e4">Common mistakes</a></li>
+    </ol>
+    <h4>Part 6 · Case Studies</h4>
+    <ol>
+      <li><a href="#c1">WhatsApp</a></li>
+      <li><a href="#c2">Twitter</a></li>
+      <li><a href="#c3">YouTube</a></li>
+      <li><a href="#c4">Uber ETA</a></li>
+      <li><a href="#c5">Uber nearby drivers</a></li>
+      <li><a href="#c6">Airbnb</a></li>
+      <li><a href="#c7">Reddit</a></li>
+      <li><a href="#c8">Google Search</a></li>
+      <li><a href="#c9">Amazon S3</a></li>
+      <li><a href="#c10">Kafka</a></li>
+      <li><a href="#c11">LLM serving</a></li>
+      <li><a href="#c12">Stock exchange</a></li>
+      <li><a href="#c13">Google Docs</a></li>
+      <li><a href="#c14">Tinder</a></li>
+      <li><a href="#c15">Nginx</a></li>
+      <li><a href="#c16">Leaderboard</a></li>
+      <li><a href="#c17">AirTags</a></li>
+      <li><a href="#c18">Vitess/MySQL</a></li>
+    </ol>
+    <h4>Appendix</h4>
+    <ol>
+      <li><a href="#a1">Latency numbers</a></li>
+      <li><a href="#a2">Glossary</a></li>
+    </ol>
+  </div>
+</details>
 
 <div class="layout">
   <nav class="toc">
