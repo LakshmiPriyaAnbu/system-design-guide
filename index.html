@@ -14,16 +14,6 @@
     --code-bg:#F1EEE6;
   }
   html{background:var(--paper);color:var(--ink);}
-  /* Subtle diagonal watermark, all pages, non-interactive */
-  body::before{
-    content:'';
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:999;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='220'><text x='200' y='115' font-family='Georgia,serif' font-size='22' font-style='italic' fill='%231A1D24' fill-opacity='0.055' text-anchor='middle' transform='rotate(-28 200 115)'>%C2%A9 Lakshmi Priya Anbu</text></svg>");
-    background-repeat:repeat;
-  }
   body{
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     font-size:16px; line-height:1.65;
@@ -1140,6 +1130,9 @@ Each case study below is written as a short article — the way a beginner textb
 
 <p style="color:var(--muted); font-size:14px; text-align:center;">
 End of guide. Read a section, close it, explain the concept out loud in your own words.
+</p>
+<p style="color:var(--muted); font-size:13px; text-align:center; font-style:italic; margin-top:8px;">
+© Lakshmi Priya Anbu
 </p>
 
   </main>
