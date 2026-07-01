@@ -1,0 +1,1086 @@
+<title>System Design — Handbook &amp; Interview Guide</title>
+<meta name="description" content="A comprehensive system design guide: foundations, classic problems, IoT/mobile, LLD, and interview playbook." />
+
+<style>
+  :root{
+    --paper:#FBFAF7;
+    --ink:#1A1D24;
+    --muted:#6B6F78;
+    --rule:#E4E1D8;
+    --accent:#1F5F8B;
+    --accent-soft:#E4EEF5;
+    --warm:#B25628;
+    --warm-soft:#F5E6D9;
+    --code-bg:#F1EEE6;
+    --good:#2f7d5b;
+    --bad:#a83232;
+  }
+  html{background:var(--paper);color:var(--ink);}
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size:16px; line-height:1.65;
+    max-width:1200px; margin:0 auto; padding:48px 28px 96px;
+  }
+  .layout{display:grid; grid-template-columns: 260px 1fr; gap:56px;}
+  @media (max-width: 900px){ .layout{grid-template-columns:1fr; gap:24px;} nav.toc{position:static !important; max-height:none !important;} }
+
+  nav.toc{
+    position:sticky; top:24px; align-self:start;
+    font-size:13px; line-height:1.5;
+    border-right:1px solid var(--rule); padding-right:20px;
+    max-height:calc(100vh - 48px); overflow-y:auto;
+  }
+  nav.toc h4{
+    font-family:Charter, "Iowan Old Style", Georgia, serif;
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:var(--muted); margin:20px 0 8px; font-weight:600;
+  }
+  nav.toc h4:first-child{margin-top:0;}
+  nav.toc ol{list-style:none; padding:0; margin:0;}
+  nav.toc li{margin:3px 0;}
+  nav.toc a{color:var(--ink); text-decoration:none; display:block; padding:2px 0;}
+  nav.toc a:hover{color:var(--accent);}
+
+  main{max-width:780px;}
+  h1,h2,h3,h4{font-family: Charter, "Iowan Old Style", Georgia, "Times New Roman", serif; text-wrap:balance;}
+  h1{ font-size:44px; line-height:1.08; letter-spacing:-0.01em; margin:0 0 8px; font-weight:700;}
+  .kicker{
+    font-family:Charter,Georgia,serif; text-transform:uppercase;
+    letter-spacing:0.18em; font-size:11.5px; color:var(--warm); font-weight:600;
+    margin-bottom:14px;
+  }
+  .lede{font-size:19px; line-height:1.55; color:var(--muted); max-width:60ch; margin:0 0 40px;}
+  hr.chapter-rule{border:0; border-top:1px solid var(--rule); margin:64px 0 40px;}
+  .part-header{
+    font-family:Charter,Georgia,serif;
+    text-transform:uppercase; letter-spacing:0.22em;
+    font-size:12px; font-weight:700; color:var(--warm);
+    padding:8px 0; border-top:2px solid var(--ink); border-bottom:1px solid var(--rule);
+    margin:80px 0 28px;
+  }
+
+  h2{
+    font-size:28px; margin:52px 0 4px; scroll-margin-top:24px;
+  }
+  h2 .num{
+    display:inline-block; font-variant-numeric:tabular-nums;
+    color:var(--accent); font-size:15px; font-weight:600;
+    letter-spacing:0.02em; margin-right:12px; vertical-align:5px;
+  }
+  h3{font-size:19px; margin:28px 0 6px;}
+  h4{font-size:15.5px; margin:20px 0 6px; letter-spacing:0.01em;}
+
+  p{margin:0 0 12px;}
+  strong{color:var(--ink);}
+
+  ul, ol{padding-left:22px; margin:0 0 14px;}
+  li{margin:3px 0;}
+
+  code{
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    background:var(--code-bg); padding:1px 5px; border-radius:3px;
+    font-size:0.88em;
+  }
+  pre{
+    background:var(--code-bg); padding:14px 16px; border-radius:6px;
+    overflow-x:auto; font-size:12.5px; line-height:1.5;
+    border:1px solid var(--rule);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    margin:12px 0;
+  }
+  pre code{background:transparent; padding:0;}
+
+  .callout{
+    border-left:3px solid var(--accent);
+    background:var(--accent-soft);
+    padding:12px 16px; margin:16px 0;
+    border-radius:0 6px 6px 0;
+    font-size:14.5px;
+  }
+  .callout.warm{border-left-color:var(--warm); background:var(--warm-soft);}
+  .callout .label{
+    font-family:Charter,Georgia,serif; text-transform:uppercase; letter-spacing:0.14em;
+    font-size:11px; color:var(--accent); font-weight:700; margin-bottom:4px;
+  }
+  .callout.warm .label{color:var(--warm);}
+
+  figure{ margin:18px 0; padding:16px 18px; border:1px solid var(--rule); background:#fff; border-radius:6px;}
+  figure pre{background:transparent; border:0; padding:0; margin:0;}
+  figcaption{ margin-top:10px; font-size:12.5px; color:var(--muted); font-family:Charter,Georgia,serif; font-style:italic; border-top:1px solid var(--rule); padding-top:8px;}
+
+  .table-wrap{overflow-x:auto; margin:16px 0;}
+  table{ border-collapse:collapse; width:100%; font-size:14px; font-variant-numeric:tabular-nums;}
+  th, td{padding:8px 11px; text-align:left; border-bottom:1px solid var(--rule); vertical-align:top;}
+  th{
+    font-family:Charter,Georgia,serif; font-weight:700; font-size:12.5px;
+    text-transform:uppercase; letter-spacing:0.08em; color:var(--muted);
+    border-bottom:2px solid var(--ink);
+  }
+  tbody tr:nth-child(even){background:rgba(228,225,216,0.25);}
+
+  .pill{
+    display:inline-block; font-size:11px; letter-spacing:0.06em;
+    padding:2px 8px; border-radius:20px;
+    background:var(--accent-soft); color:var(--accent); font-weight:600;
+    vertical-align:2px;
+  }
+  .pill.warm{background:var(--warm-soft); color:var(--warm);}
+
+  a{color:var(--accent);}
+</style>
+
+<div class="layout">
+  <nav class="toc" aria-label="Table of contents">
+    <h4>Part 1 · Foundations</h4>
+    <ol>
+      <li><a href="#s1">1. What system design is</a></li>
+      <li><a href="#s2">2. Client–server model</a></li>
+      <li><a href="#s3">3. HTTP &amp; REST</a></li>
+      <li><a href="#s4">4. DNS</a></li>
+      <li><a href="#s5">5. Load balancers</a></li>
+      <li><a href="#s6">6. API gateways</a></li>
+      <li><a href="#s7">7. SQL vs NoSQL</a></li>
+      <li><a href="#s8">8. Indexes, ACID, BASE</a></li>
+      <li><a href="#s9">9. Caching</a></li>
+      <li><a href="#s10">10. Message queues</a></li>
+      <li><a href="#s11">11. CDNs</a></li>
+      <li><a href="#s12">12. Object storage</a></li>
+      <li><a href="#s13">13. Rate limiting</a></li>
+      <li><a href="#s14">14. Auth &amp; Authz</a></li>
+      <li><a href="#s15">15. Scaling &amp; sharding</a></li>
+      <li><a href="#s16">16. CAP &amp; PACELC</a></li>
+      <li><a href="#s17">17. Observability</a></li>
+    </ol>
+    <h4>Part 2 · Classic Problems</h4>
+    <ol>
+      <li><a href="#p1">URL shortener</a></li>
+      <li><a href="#p2">Chat app</a></li>
+      <li><a href="#p3">Notifications</a></li>
+      <li><a href="#p4">Ride booking</a></li>
+      <li><a href="#p5">Food delivery</a></li>
+      <li><a href="#p6">Instagram feed</a></li>
+      <li><a href="#p7">File sync (Dropbox)</a></li>
+      <li><a href="#p8">Video streaming</a></li>
+      <li><a href="#p9">Payments</a></li>
+      <li><a href="#p10">Typeahead</a></li>
+      <li><a href="#p11">Distributed rate limiter</a></li>
+      <li><a href="#p12">Logging &amp; monitoring</a></li>
+    </ol>
+    <h4>Part 3 · IoT / Mobile</h4>
+    <ol>
+      <li><a href="#i1">Mobile backend</a></li>
+      <li><a href="#i2">Multi-device sync</a></li>
+      <li><a href="#i3">Offline-first</a></li>
+      <li><a href="#i4">Push notifications</a></li>
+      <li><a href="#i5">BLE / Wi-Fi setup</a></li>
+      <li><a href="#i6">Telemetry pipeline</a></li>
+      <li><a href="#i7">Time-series storage</a></li>
+      <li><a href="#i8">OTA firmware</a></li>
+      <li><a href="#i9">Provisioning</a></li>
+    </ol>
+    <h4>Part 4 · Low-Level Design</h4>
+    <ol>
+      <li><a href="#l1">OOP essentials</a></li>
+      <li><a href="#l2">SOLID</a></li>
+      <li><a href="#l3">Design patterns</a></li>
+      <li><a href="#l4">DI &amp; architectures</a></li>
+      <li><a href="#l5">Thread safety</a></li>
+      <li><a href="#l6">LLD problem catalog</a></li>
+    </ol>
+    <h4>Part 5 · Interview Execution</h4>
+    <ol>
+      <li><a href="#e1">The 45-min playbook</a></li>
+      <li><a href="#e2">LLD playbook</a></li>
+      <li><a href="#e3">Behavioral stories</a></li>
+      <li><a href="#e4">Common rejection reasons</a></li>
+      <li><a href="#e5">30-day prep plan</a></li>
+    </ol>
+    <h4>Part 6 · Case Studies</h4>
+    <ol>
+      <li><a href="#c1">WhatsApp</a></li>
+      <li><a href="#c2">Twitter timeline</a></li>
+      <li><a href="#c3">YouTube</a></li>
+      <li><a href="#c4">Uber ETA</a></li>
+      <li><a href="#c5">Uber nearby drivers</a></li>
+      <li><a href="#c6">Airbnb</a></li>
+      <li><a href="#c7">Reddit</a></li>
+      <li><a href="#c8">Google Search</a></li>
+      <li><a href="#c9">Amazon S3</a></li>
+      <li><a href="#c10">Kafka internals</a></li>
+      <li><a href="#c11">LLM serving</a></li>
+      <li><a href="#c12">Stock exchange</a></li>
+      <li><a href="#c13">Google Docs</a></li>
+      <li><a href="#c14">Tinder</a></li>
+      <li><a href="#c15">Nginx internals</a></li>
+      <li><a href="#c16">Leaderboard</a></li>
+      <li><a href="#c17">AirTags</a></li>
+      <li><a href="#c18">Vitess/MySQL scale</a></li>
+    </ol>
+    <h4>Appendix</h4>
+    <ol>
+      <li><a href="#a1">Latency numbers</a></li>
+      <li><a href="#a2">Default tech picks</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <div class="kicker">Handbook · Interview Guide</div>
+    <h1>System Design, from HTTP to distributed systems.</h1>
+    <p class="lede">
+      A working reference for interview-oriented system design: foundational building blocks, the classic problems interviewers ask, IoT/mobile-specific designs, low-level design, and a playbook for the 45-minute round. Each section aims to be short enough to skim, deep enough to teach the trade-offs.
+    </p>
+
+<!-- ================= PART 1 ================= -->
+<div class="part-header">Part 1 — Foundations</div>
+
+<h2 id="s1"><span class="num">01</span>What system design is (and what interviewers score)</h2>
+<p>System design is the practice of turning a vague product ask ("design Instagram") into a concrete plan: what the system must do, how well it must do it, which components handle each job, and how those components survive real failure.</p>
+<p>Interviewers score four things, roughly in this order:</p>
+<ul>
+  <li><strong>Requirements clarification</strong> — do you pin down scale, read/write ratio, and consistency needs before drawing boxes?</li>
+  <li><strong>Structured approach</strong> — clarify → estimate → high-level → deep-dive → failures, not a random box tour.</li>
+  <li><strong>Trade-off awareness</strong> — every choice has a cost. Naming the cost is the point.</li>
+  <li><strong>Depth</strong> — you go deep on at least one component (schema, algorithm, failure recovery), not shallow across many.</li>
+</ul>
+<div class="callout"><div class="label">The five-step frame</div>
+Clarify · Estimate · High-level · Deep-dive · Scale &amp; Fail. This shape covers 95% of prompts.</div>
+
+<h2 id="s2"><span class="num">02</span>Client–server model</h2>
+<p>A <strong>client</strong> asks for data — phone, browser, IoT device, another server. A <strong>server</strong> waits for requests and sends responses. They speak a shared protocol over a network — usually HTTP.</p>
+<figure><pre>
+   Client  ──── request ────►  Server
+           ◄─── response ────
+</pre></figure>
+<p>Every system-design question ultimately reduces to "how do clients get data to/from servers, and what happens server-side?" Even "design Uber" is two clients (rider, driver) talking to a coordinated server backend.</p>
+
+<h2 id="s3"><span class="num">03</span>HTTP, REST, and APIs</h2>
+<p>HTTP is a request–response protocol. Client sends a request; server sends one response.</p>
+<pre><code>GET /users/42 HTTP/1.1
+Host: api.example.com
+Authorization: Bearer eyJhbG...</code></pre>
+<h4>Verbs</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Method</th><th>Purpose</th><th>Idempotent?</th></tr></thead>
+<tbody>
+<tr><td>GET</td><td>Read</td><td>Yes</td></tr>
+<tr><td>POST</td><td>Create</td><td>No</td></tr>
+<tr><td>PUT</td><td>Replace</td><td>Yes</td></tr>
+<tr><td>PATCH</td><td>Partial update</td><td>No (usually)</td></tr>
+<tr><td>DELETE</td><td>Remove</td><td>Yes</td></tr>
+</tbody></table></div>
+<p>Idempotency matters for retries: if a network blip causes a client to retry, you don't want a duplicate charge.</p>
+
+<h4>Status codes worth memorizing</h4>
+<p><strong>2xx</strong> success (200, 201, 204). <strong>3xx</strong> redirects (301). <strong>4xx</strong> client mistake (400 bad request, 401 unauthenticated, 403 unauthorized, 404 not found, 409 conflict, 429 too many). <strong>5xx</strong> server fault (500, 502, 503, 504).</p>
+
+<h4>REST style</h4>
+<p>Model your API around <em>resources</em> (nouns), not RPC verbs. Use plural nouns, HTTP methods for action, version in the path, and cursor-based pagination for long lists.</p>
+<pre><code>POST   /v1/users        create
+GET    /v1/users/42     read
+PATCH  /v1/users/42     update
+DELETE /v1/users/42     delete
+GET    /v1/users/42/orders?limit=20&amp;cursor=abc</code></pre>
+
+<h4>REST vs gRPC vs GraphQL</h4>
+<div class="table-wrap"><table>
+<thead><tr><th></th><th>REST</th><th>gRPC</th><th>GraphQL</th></tr></thead>
+<tbody>
+<tr><td>Payload</td><td>JSON</td><td>Protobuf (binary)</td><td>JSON</td></tr>
+<tr><td>Schema</td><td>OpenAPI</td><td>.proto</td><td>SDL</td></tr>
+<tr><td>Streaming</td><td>SSE</td><td>Bidi</td><td>Subscriptions</td></tr>
+<tr><td>Best for</td><td>Public / mobile APIs</td><td>Internal microservices</td><td>Client-driven queries</td></tr>
+</tbody></table></div>
+
+<h4>When request/response isn't enough — WebSocket</h4>
+<p>HTTP is one-way (client initiates). For server-push (chat, live dashboards, games) you want a persistent bidirectional pipe. WebSocket upgrades an HTTP connection into that pipe. Alternatives: Server-Sent Events (one-way push), long-poll (a hack).</p>
+
+<h2 id="s4"><span class="num">04</span>DNS — how a request reaches a server</h2>
+<pre>
+1. App → OS resolver:    "api.example.com?"
+2. Resolver → Root DNS:  "ask .com"
+3. Resolver → .com:      "ask example.com"
+4. Resolver → example:   "52.84.123.45"
+5. App opens TCP → TLS → HTTP</pre>
+<p>DNS is cached at multiple layers (OS, browser, resolver). GeoDNS routes based on client region — the foundation of CDN routing. It's also a real single-point-of-failure risk; large sites use multi-provider DNS.</p>
+
+<h2 id="s5"><span class="num">05</span>Load balancers (L4 vs L7)</h2>
+<p>One server handles maybe 1,000 req/s. You need 100,000. So 100 servers. But clients only know one address — the load balancer, which distributes traffic across the backend pool.</p>
+<figure><pre>
+                  ┌──────────┐   ┌── Server 1
+   Clients ─────► │   Load   │──►│── Server 2
+                  │ Balancer │──►│── Server 3
+                  └──────────┘   └──  ...
+</pre></figure>
+<h4>Algorithms</h4>
+<ul>
+  <li><strong>Round-robin</strong> — cycle through servers.</li>
+  <li><strong>Least connections</strong> — send to whoever has the fewest active connections.</li>
+  <li><strong>Weighted</strong> — larger boxes get more.</li>
+  <li><strong>IP hash</strong> — same client → same server (for sticky sessions).</li>
+</ul>
+<h4>L4 vs L7</h4>
+<p><strong>L4 (transport)</strong> routes on IP + port, doesn't understand HTTP — fast but dumb. <strong>L7 (application)</strong> understands HTTP, can route on path/headers/cookies — smarter but slower. Modern LBs: AWS ALB/NLB, NGINX, HAProxy, Envoy.</p>
+<h4>Health checks</h4>
+<p>LB pings each backend (<code>GET /health</code>). If N consecutive checks fail, remove from pool. When it recovers, add back. The LB itself needs HA — run active/active pairs with a floating VIP, or use a managed cloud LB.</p>
+
+<h2 id="s6"><span class="num">06</span>API gateways</h2>
+<p>An API gateway is the smart front door for your system. It sits at the edge and handles cross-cutting concerns so backend services don't have to:</p>
+<ul>
+  <li>Routing (<code>/users</code> → user service, <code>/payments</code> → payments)</li>
+  <li>Auth (validate JWT before forwarding)</li>
+  <li>Rate limiting</li>
+  <li>Request/response transformation (schema v1 → v2)</li>
+  <li>TLS termination, logging, metrics</li>
+</ul>
+<p>Load balancer vs gateway: an LB spreads traffic across <em>identical</em> backends. A gateway routes to <em>different</em> backends and adds smarts. Examples: AWS API Gateway, Kong, Apigee, Envoy, Spring Cloud Gateway.</p>
+
+<h2 id="s7"><span class="num">07</span>Databases — SQL vs NoSQL</h2>
+<h4>SQL (relational)</h4>
+<p>Rows and columns, foreign keys, joins, ACID transactions. Mature, expressive, well-understood. Downside: sharding is painful. Use for: transactions, structured data with relationships (users, orders, payments). Examples: PostgreSQL, MySQL, Oracle.</p>
+<h4>NoSQL — four flavors</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Type</th><th>Shape</th><th>Use case</th><th>Examples</th></tr></thead>
+<tbody>
+<tr><td>Key-Value</td><td>hash map</td><td>cache, sessions, counters</td><td>Redis, DynamoDB</td></tr>
+<tr><td>Document</td><td>JSON blobs</td><td>flexible schemas, product catalog</td><td>MongoDB, Firestore</td></tr>
+<tr><td>Wide-Column</td><td>row + sparse columns</td><td>massive write throughput</td><td>Cassandra, HBase</td></tr>
+<tr><td>Graph</td><td>nodes + edges</td><td>friend-of-friend, recs</td><td>Neo4j, Neptune</td></tr>
+<tr><td>Time-Series</td><td>append-only + time index</td><td>metrics, IoT telemetry</td><td>InfluxDB, TimescaleDB</td></tr>
+</tbody></table></div>
+
+<h4>Picking a DB in an interview</h4>
+<p>Start from the query pattern, not the buzz. If you'll do multi-row transactions and joins, SQL. If write throughput and simple key access dominate, wide-column. If you need session state / cache, KV. If your primary axis is time, time-series.</p>
+
+<h2 id="s8"><span class="num">08</span>Indexes, transactions, ACID, BASE</h2>
+<h4>Indexes</h4>
+<p>Like a book's index: instead of scanning every row, the DB jumps to matching rows via a data structure — typically a B-tree (range-friendly) or hash (equality only). Trade-off: reads faster, writes slower (every insert must also update the index). Composite indexes (<code>(user_id, created_at)</code>) — column order matters for which queries can use them.</p>
+
+<h4>ACID</h4>
+<ul>
+  <li><strong>Atomicity</strong> — all-or-nothing.</li>
+  <li><strong>Consistency</strong> — DB constraints are honored across a transaction boundary.</li>
+  <li><strong>Isolation</strong> — concurrent transactions don't see each other's half-done work.</li>
+  <li><strong>Durability</strong> — once committed, changes survive a crash.</li>
+</ul>
+
+<h4>Isolation levels</h4>
+<p>Read Uncommitted → Read Committed → Repeatable Read → Serializable. Higher = stricter but slower. PostgreSQL defaults to Read Committed; MySQL InnoDB defaults to Repeatable Read.</p>
+
+<h4>BASE</h4>
+<p>The NoSQL counterpoint: <strong>Basically Available, Soft state, Eventual consistency.</strong> Don't expect ACID guarantees; expect that the system stays up and converges eventually.</p>
+
+<h2 id="s9"><span class="num">09</span>Caching</h2>
+<p>RAM is ~100× faster than a DB round-trip. Real systems get 10–1000× speedups from caching. Caches live at every layer: browser, CDN edge, API gateway, in-process, distributed (Redis/Memcached), DB internal, disk.</p>
+
+<h4>Write strategies</h4>
+<ul>
+  <li><strong>Write-through</strong> — write to cache AND DB synchronously. Cache always fresh; slow writes.</li>
+  <li><strong>Write-behind</strong> — write to cache, ack client, flush to DB async. Fast writes; data loss risk if cache dies.</li>
+  <li><strong>Write-around</strong> — writes bypass cache and go straight to DB; cache is populated on first read miss.</li>
+</ul>
+
+<h4>Read strategies</h4>
+<p><strong>Cache-aside (lazy)</strong> — the most common pattern:</p>
+<pre><code>def get_user(id):
+    u = cache.get(f"user:{id}")
+    if u is None:
+        u = db.get(id)
+        cache.set(f"user:{id}", u, ttl=300)
+    return u</code></pre>
+
+<h4>Eviction</h4>
+<p>LRU (least recently used), LFU (least frequently used), FIFO, TTL. LRU is the default for a reason — it approximates locality well.</p>
+
+<h4>Cache pitfalls to name in interviews</h4>
+<div class="table-wrap"><table>
+<thead><tr><th>Problem</th><th>What happens</th><th>Fix</th></tr></thead>
+<tbody>
+<tr><td>Stale data</td><td>Cache returns old value</td><td>TTL, or invalidate on write</td></tr>
+<tr><td>Thundering herd</td><td>Hot key expires, N clients slam DB</td><td>Single-flight lock; stale-while-revalidate</td></tr>
+<tr><td>Cache penetration</td><td>Missing keys re-hammer DB</td><td>Cache "not-found" with short TTL; bloom filter</td></tr>
+<tr><td>Cache avalanche</td><td>Many keys expire simultaneously</td><td>Jitter TTLs</td></tr>
+<tr><td>Hot key</td><td>Celebrity profile overloads one node</td><td>Replicate; local in-process cache for top-N</td></tr>
+</tbody></table></div>
+
+<h2 id="s10"><span class="num">10</span>Message queues &amp; event-driven architecture</h2>
+<p>Service A wants to tell B "user signed up — send welcome email." Direct call couples them: A is slow if B is slow, and A breaks if B is down. A queue between them decouples:</p>
+<figure><pre>
+   Producer ──► [ Queue ] ──► Consumer B
+                         └──► Consumer C
+                         └──► Consumer D
+</pre></figure>
+<p>A drops a message and moves on. B reads when ready. If B is down, messages pile up safely.</p>
+
+<h4>Queue vs Pub/Sub</h4>
+<ul>
+  <li><strong>Queue (point-to-point)</strong> — each message goes to <em>one</em> consumer. SQS, RabbitMQ. Good for task distribution.</li>
+  <li><strong>Pub/Sub (broadcast)</strong> — each message goes to <em>every</em> subscriber. Kafka, SNS, Google Pub/Sub. Good for events.</li>
+</ul>
+
+<h4>Kafka in one paragraph</h4>
+<p>Kafka is a distributed append-only log. Topics have partitions; each partition is an ordered sequence of messages retained for days/weeks. Multiple consumer groups read independently, each tracking its own offset. Ordering is guaranteed within a partition. This is what makes it a great fit for event sourcing, streaming, and fan-out to many independent consumers.</p>
+
+<h4>Delivery guarantees</h4>
+<p><strong>At-most-once</strong> may drop messages. <strong>At-least-once</strong> may duplicate — the common default. <strong>Exactly-once</strong> is hard; usually achieved via consumer-side idempotency (dedup key). Design consumers to be idempotent.</p>
+
+<h4>Patterns</h4>
+<p>Fan-out (one event, N consumers). Worker pool (many workers pull from one queue). Event sourcing (store every state change as an event; rebuild state by replay). CQRS (separate write and read models). Saga (multi-step distributed transaction with compensating actions).</p>
+
+<h2 id="s11"><span class="num">11</span>CDNs</h2>
+<p>A network of edge servers around the world caching static content close to users. A user in Mumbai fetches from a Mumbai edge in ~5ms instead of a US origin in ~200ms.</p>
+<p>What goes in a CDN: images, video, JS, CSS, fonts, downloads, sometimes short-TTL API responses. Invalidation via TTL, explicit purge, or cache-busting filenames (<code>app.a3f8b9.js</code>). Examples: CloudFront, Cloudflare, Fastly, Akamai.</p>
+
+<h2 id="s12"><span class="num">12</span>Object storage (S3-style)</h2>
+<p>An HTTP service for blobs — cheap, massively durable, effectively infinite. Buckets contain objects addressed by key. Versioning, lifecycle policies (auto-tier hot → cold → archive), and presigned URLs for direct upload/download without exposing credentials.</p>
+<p>Why not put big blobs in a DB? Databases charge dearly per GB and choke on multi-MB rows. Object storage is designed for "write once, read many." Use for: user uploads, backups, static hosting, data lakes, firmware images.</p>
+
+<h2 id="s13"><span class="num">13</span>Rate limiting</h2>
+<h4>Why</h4>
+<p>Prevent abuse and DoS, fairly share among tenants, protect downstream services from being overrun.</p>
+<h4>Algorithms</h4>
+<ul>
+  <li><strong>Fixed window</strong> — counter per minute. Simple; suffers a 2× spike at boundaries.</li>
+  <li><strong>Sliding window log</strong> — keep timestamps of recent requests. Precise; memory-heavy.</li>
+  <li><strong>Sliding window counter</strong> — weighted blend of current + previous window. Low memory, smooth, approximate.</li>
+  <li><strong>Token bucket</strong> — bucket refills at rate R up to capacity C; each request costs 1 token. Allows short bursts, smooths sustained rate. The most popular.</li>
+  <li><strong>Leaky bucket</strong> — queue drains at constant rate; overflow drops. Enforces smooth output.</li>
+</ul>
+<h4>Distributed</h4>
+<p>Counter must be shared across all gateway instances. Common: Redis with <code>INCR</code> + <code>EXPIRE</code>, or a Lua script for atomic token-bucket refill. Reject with HTTP 429 and a <code>Retry-After</code> header.</p>
+
+<h2 id="s14"><span class="num">14</span>Authentication &amp; authorization</h2>
+<p><strong>AuthN</strong> = who are you? <strong>AuthZ</strong> = what may you do?</p>
+<h4>Session-based</h4>
+<p>Server issues a session ID, stores server-side (Redis/DB), client carries it in a cookie. Easy to revoke by deleting the session row. Needs shared state across servers.</p>
+<h4>Token-based (JWT)</h4>
+<p>Server issues a signed token containing claims. Client sends it on every request; server verifies signature — no DB lookup. Stateless, scales easily. Harder to revoke before expiry — mitigate with short-lived access tokens + longer refresh tokens.</p>
+<h4>OAuth 2.0</h4>
+<p>"Log in with Google." Your app never sees the user's Google password. Flow: redirect user to Google → user approves → Google redirects back with a code → your backend exchanges code + secret for an access token → use token to call Google APIs.</p>
+<h4>Authorization models</h4>
+<p>RBAC (roles → permissions), ABAC (rules over attributes: "editor if user.id == doc.owner_id"), ACL (explicit per-resource grants).</p>
+
+<h2 id="s15"><span class="num">15</span>Scaling — vertical, horizontal, replication, sharding</h2>
+<p><strong>Vertical</strong> (bigger box) is easy but capped. <strong>Horizontal</strong> (more boxes) scales further but adds coordination cost. Aim for stateless app servers — any request can go to any server, so you can just add boxes.</p>
+
+<h4>Replication (read scaling)</h4>
+<p>One primary handles writes; N replicas serve reads. Replicas lag behind by ms–seconds. Reads that must see the freshest data go to the primary; others can go to replicas.</p>
+
+<h4>Sharding (write &amp; storage scaling)</h4>
+<p>Split data across N DBs by a shard key. Options:</p>
+<ul>
+  <li><strong>Range sharding</strong> — A–F → shard 1, G–M → shard 2. Simple but risks hot ranges.</li>
+  <li><strong>Hash sharding</strong> — <code>hash(key) % N</code>. Uniform; painful to add nodes (nearly everything remaps).</li>
+  <li><strong>Consistent hashing</strong> — keys and nodes on a ring; adding a node moves only ~1/N of keys. Used by Cassandra, DynamoDB.</li>
+</ul>
+<p>Cross-shard queries are painful. Design shard keys around your hottest queries. Never use monotonically increasing values (<code>created_at</code>) as a shard key — creates a hot shard.</p>
+
+<h2 id="s16"><span class="num">16</span>Consistency, availability, CAP, PACELC</h2>
+<p><strong>CAP</strong>: under a network partition, a distributed system must choose Consistency or Availability. Since partitions <em>will</em> happen, the real question is CP or AP. Cassandra and DynamoDB are AP by default (tunable). ZooKeeper, etcd, and MongoDB (default) are CP.</p>
+<p><strong>PACELC</strong> is the smarter version: if <em>Partition</em>, choose <em>A</em> or <em>C</em>; <em>Else</em>, choose <em>Latency</em> or <em>Consistency</em>. Even with no partition, replication trades latency for consistency — do you wait for all replicas to ack, or return fast and let them catch up?</p>
+<h4>Consistency spectrum</h4>
+<p>Eventual → read-your-writes → monotonic reads → causal → linearizable. Pick the weakest that your feature can tolerate — stronger consistency costs latency and availability.</p>
+
+<h2 id="s17"><span class="num">17</span>Observability — logs, metrics, traces</h2>
+<p>Three pillars, three answers to different questions.</p>
+<ul>
+  <li><strong>Logs</strong> — discrete events. "What happened at 14:32?" Stacks: ELK/Opensearch, Loki, Datadog.</li>
+  <li><strong>Metrics</strong> — aggregate numbers over time. "How's request rate?" Stacks: Prometheus + Grafana, Datadog.</li>
+  <li><strong>Traces</strong> — request paths across services. "Where's the latency?" Stacks: Jaeger, Zipkin, OpenTelemetry.</li>
+</ul>
+<p>Alerts sit on top of metrics — page on-call when a rule fires (p99 latency &gt; 500ms for 5 min, error rate &gt; 1% for 1 min). In interviews, land the plane with: "I'd export RED metrics (Rate/Errors/Duration) per service via OpenTelemetry, dashboard in Grafana, alert on p99 and error rate."</p>
+
+<!-- ================= PART 2 ================= -->
+<div class="part-header">Part 2 — Classic Problems</div>
+
+<p>Each of these follows the same structure: requirements → estimates → high-level → deep-dive → scale &amp; failure.</p>
+
+<h2 id="p1"><span class="num">18</span>URL Shortener</h2>
+<h4>Requirements</h4>
+<p>Shorten a long URL to a short one; redirect on read; optional custom alias, expiry, analytics. Assume 100M writes/day → ~1,200 writes/sec; 10:1 read:write → ~12K reads/sec; latency p99 &lt; 100ms.</p>
+<h4>High-level</h4>
+<figure><pre>
+ Client → API/LB → App → [Redis cache]
+                        └→ [Sharded DB (Cassandra or SQL+Vitess)]
+                        └→ Kafka → analytics
+</pre></figure>
+<h4>Generating short codes</h4>
+<p>Three approaches:</p>
+<ol>
+  <li><strong>Hash the URL</strong> — deterministic, but collisions need handling.</li>
+  <li><strong>Counter + base62</strong> — no collisions, but a global counter is a bottleneck. Fix by pre-allocating ID batches to each app server.</li>
+  <li><strong>Random + collision check</strong> — simple, one extra DB lookup per write.</li>
+</ol>
+<p>Prefer counter with batch allocation.</p>
+<h4>Read path</h4>
+<pre><code>GET /aB3xZ9
+  cache.get → hit → 302 to long URL
+  miss → db.get → cache.set → 302</code></pre>
+<h4>Failure &amp; scale</h4>
+<p>Redis cluster for hot URLs. DB sharded by short_code. CDN cache the redirect endpoint with a short TTL. Analytics goes through Kafka — never write per click to the DB directly, aggregate hourly.</p>
+
+<h2 id="p2"><span class="num">19</span>Chat App (WhatsApp / Slack)</h2>
+<h4>Requirements</h4>
+<p>1:1 and group messages, delivery + read receipts, offline delivery, media, message history, presence. Assume 500M users, 50M concurrent, p99 send-to-receive &lt; 500ms.</p>
+<h4>High-level</h4>
+<figure><pre>
+  Mobile ──WS──► Chat Gateway ──► Presence (Redis)
+                       │
+                       ▼
+                     Kafka ──► Persist (Cassandra)
+                            └─► Push (APNs/FCM)
+                            └─► Search index
+</pre></figure>
+<h4>Connection management</h4>
+<p>50M WebSocket connections → hundreds of gateway boxes. Route users to gateways via consistent hashing on <code>user_id</code>. A presence service (Redis hash) maps <code>user_id → gateway_id</code>.</p>
+<h4>Message flow</h4>
+<ol>
+  <li>Alice's message hits her gateway.</li>
+  <li>Gateway persists (via queue or direct DB) and acks Alice.</li>
+  <li>Look up Bob's gateway in presence.</li>
+  <li>Forward to Bob's gateway over internal RPC.</li>
+  <li>Bob's gateway writes to Bob's WebSocket. Bob's app renders + sends "delivered".</li>
+</ol>
+<h4>Storage</h4>
+<p>Cassandra is a natural fit: partition by <code>conversation_id</code>, cluster by <code>message_id</code> (TIMEUUID desc). Range scan the latest N messages in a partition is O(1) seeks. For 1:1 chats, define <code>conversation_id = min(uid_a, uid_b) + ":" + max(uid_a, uid_b)</code>.</p>
+<h4>Groups</h4>
+<p>Store the message once per conversation; each user maintains a <code>last_read</code> pointer. Don't fan out to individual inboxes for groups.</p>
+<h4>Offline &amp; push</h4>
+<p>If recipient is offline, persist and push via APNs/FCM. When they come online, pull messages since <code>last_seen_message_id</code>.</p>
+<h4>End-to-end encryption</h4>
+<p>Server becomes a blind relay — messages encrypted client-side (Signal protocol). Group chats use "Sender Keys" (one symmetric key per group, distributed via pairwise encryption).</p>
+
+<h2 id="p3"><span class="num">20</span>Notification System</h2>
+<h4>Requirements</h4>
+<p>Send push/email/SMS/in-app. Templates. Per-user preferences per channel. Retries, dedup. Priority lanes (transactional vs marketing).</p>
+<h4>Architecture</h4>
+<figure><pre>
+  Producers → Notification API
+                    ↓
+             Preference Service   (respect user opt-outs)
+                    ↓
+             Template Service     (render with data)
+                    ↓
+                  Kafka  (topics: push, email, sms)
+                 ↓  ↓  ↓
+             Workers → APNs / SES / Twilio
+</pre></figure>
+<h4>Deep dives</h4>
+<ul>
+  <li><strong>Idempotency</strong> — each notification carries an ID; workers check for prior send.</li>
+  <li><strong>Retries</strong> — exponential backoff; cap attempts; dead-letter queue for terminal failures.</li>
+  <li><strong>Per-provider rate limits</strong> — token bucket per provider per app.</li>
+  <li><strong>Dedup window</strong> — same user + template + data within 5 min → drop.</li>
+  <li><strong>Priority lanes</strong> — separate Kafka topics for OTP vs marketing; different SLOs and worker pools.</li>
+  <li><strong>Marketing blast</strong> — spread a 10M-user broadcast over 5 min to avoid hammering APNs.</li>
+</ul>
+
+<h2 id="p4"><span class="num">21</span>Ride Booking (Uber)</h2>
+<h4>Pieces</h4>
+<p>Riders, drivers, trips, real-time location, ETA, fare, payments, surge.</p>
+<h4>Location indexing</h4>
+<p>You need "drivers within R km of point P" fast. Options: geohash (encode lat/lng as a string, prefix match = nearby), quadtree, S2 (Google, maps Earth to a 1D Hilbert curve), or Redis <code>GEOADD</code>/<code>GEOSEARCH</code>.</p>
+<h4>Matching</h4>
+<p>Query available drivers within R of pickup. Score by distance × ETA × rating × surge. Offer to top driver with a 10s window; on decline/timeout, go to next. On accept, create the trip.</p>
+<h4>Driver heartbeat</h4>
+<pre><code>GEOADD drivers:available -122.41 37.77 driver_123
+EXPIRE driver:123 10</code></pre>
+<p>TTL means stale drivers vanish naturally.</p>
+<h4>Trip state machine</h4>
+<pre>REQUESTED → MATCHING → ACCEPTED → ARRIVED → IN_PROGRESS → COMPLETED / CANCELLED</pre>
+<p>Each transition emits a Kafka event; other services (notify, charge, analytics) subscribe.</p>
+<h4>Surge</h4>
+<p>Per-region ratio of requests to available drivers, recomputed every 1–2 min.</p>
+
+<h2 id="p5"><span class="num">22</span>Food Delivery</h2>
+<p>Three-sided match: customer ↔ restaurant ↔ driver. Driver is assigned time-windowed (5 min before food is ready), not up front. Search index: ElasticSearch on cuisine, location, rating. Order pipeline is a Saga: payment → kitchen ack → driver dispatch → delivery, with compensations on failure. ETA prediction blends restaurant prep-time history + traffic + driver location.</p>
+
+<h2 id="p6"><span class="num">23</span>Instagram Feed</h2>
+<h4>Two approaches</h4>
+<ul>
+  <li><strong>Pull (read fan-out)</strong> — at feed load, query recent posts from users I follow, merge sort. Cheap writes; slow reads if I follow many.</li>
+  <li><strong>Push (write fan-out)</strong> — on post, write to every follower's inbox. Fast reads; expensive for celebrities (100M writes).</li>
+</ul>
+<h4>Hybrid (what real systems do)</h4>
+<p>Push for normal users (&lt; ~10K followers). Pull for celebrities — merge celebrity posts at read time.</p>
+<h4>Architecture</h4>
+<pre>POST /posts → save → Kafka
+                            ↓ fan-out worker
+                       Redis lpush follower:feed post_id (if normal)
+                       mark as celebrity-post (if huge)
+GET  /feed → Redis lrange → merge celebs → hydrate → return</pre>
+<p>Ranking is a separate concern — modern feeds are ML-ranked by engagement prediction, not chronological.</p>
+
+<h2 id="p7"><span class="num">24</span>File Sync (Dropbox / Google Drive)</h2>
+<h4>Key ideas</h4>
+<ul>
+  <li><strong>Chunking</strong> — split files into ~4MB chunks; upload in parallel; resumable.</li>
+  <li><strong>Content-addressed dedup</strong> — hash each chunk (SHA-256). If the server already has that hash, skip the upload. Massive storage savings.</li>
+</ul>
+<h4>Upload flow</h4>
+<ol>
+  <li>Client chunks + hashes locally.</li>
+  <li>Client POSTs metadata + hash list.</li>
+  <li>Server responds "I have chunks A, C; send B, D, E."</li>
+  <li>Client uploads missing chunks via presigned S3 URLs.</li>
+  <li>Server commits file version.</li>
+</ol>
+<h4>Multi-device sync</h4>
+<p>Each device has a local DB of (file_id, version). Poll or WebSocket for changes; server returns the delta. Conflicts: last-write-wins for simple cases, "conflicted copy" file for competing writes.</p>
+
+<h2 id="p8"><span class="num">25</span>Video Streaming (YouTube / Netflix)</h2>
+<h4>Upload + transcode</h4>
+<pre>Upload → S3 raw → Kafka → transcode workers (240p/480p/720p/1080p/4k)
+       → HLS segments (~6s .ts files) + manifest (.m3u8) → CDN
+       → DB (metadata: status = ready)</pre>
+<h4>Delivery — adaptive bitrate</h4>
+<p>Video pre-encoded at multiple bitrates. Manifest lists them all. Player measures bandwidth and picks a bitrate <em>per segment</em>. CDN is non-negotiable — origin should almost never be hit for popular content.</p>
+<h4>Netflix-style pre-positioning</h4>
+<p>Less popular titles aren't on every edge. Push to regional caches before launch (Open Connect appliances inside ISPs).</p>
+
+<h2 id="p9"><span class="num">26</span>Payment System Basics</h2>
+<h4>Non-negotiables</h4>
+<ul>
+  <li><strong>Idempotency</strong> — client sends an <code>Idempotency-Key</code>; duplicate requests return the prior response. Never charge twice.</li>
+  <li><strong>Atomicity</strong> — balance debit + ledger entry commit together in one DB transaction.</li>
+  <li><strong>Audit log</strong> — every state change is an append-only event.</li>
+  <li><strong>Reconciliation</strong> — nightly job matches your ledger against bank statements.</li>
+</ul>
+<h4>Double-entry ledger</h4>
+<p>Every transaction is two entries. Transfer ₹500 from Alice to Bob:</p>
+<pre>ledger: (alice, -500)
+ledger: (bob,   +500)
+sum of all entries = 0 always</pre>
+<h4>Never store raw card numbers</h4>
+<p>Send them to the payment gateway (Stripe/Adyen) and store only the gateway's token. This keeps you out of PCI DSS scope.</p>
+
+<h2 id="p10"><span class="num">27</span>Typeahead / Search Autocomplete</h2>
+<h4>Data structure</h4>
+<p>A <strong>trie</strong> — each node stores a character; terminal nodes store popularity. At each node, pre-compute the top-K descendants (top 5 by popularity) so we don't traverse on the hot path.</p>
+<h4>Architecture</h4>
+<pre>Client → API → in-memory trie (per server)
+                    ↑
+       nightly load from offline pipeline:
+       aggregate 7d search logs → time-decayed popularity → build trie → S3 snapshot</pre>
+<h4>Personalization</h4>
+<p>Small per-user trie of recent queries + global trie. Merge at read time.</p>
+
+<h2 id="p11"><span class="num">28</span>Distributed Rate Limiter</h2>
+<p>N gateway instances need to enforce a shared limit. Token bucket in Redis via a Lua script (atomic refill + take). Sharded counters (by user_id hash) spread load. Local per-instance caches with periodic Redis reconciliation reduce Redis QPS at the cost of slight over-allowance. On Redis failure: fail open with a local safety cap and a circuit breaker.</p>
+
+<h2 id="p12"><span class="num">29</span>Logging &amp; Monitoring</h2>
+<pre>App → structured JSON logs → agent (Fluent Bit / OTel)
+                            → Kafka → indexer → Elastic/Opensearch → Kibana
+
+App → /metrics → Prometheus → Grafana / alerts</pre>
+<p>Concerns at scale: volume (compress, sample, hot/cold tiers), retention (7d hot / 90d warm / 1y cold in S3), PII (redact at the agent), cardinality (never put <code>user_id</code> as a metric label — it explodes).</p>
+
+<!-- ================= PART 3 ================= -->
+<div class="part-header">Part 3 — IoT / Mobile-Specific</div>
+
+<h2 id="i1"><span class="num">30</span>Mobile App Backend</h2>
+<p>Mobile backends differ from web in ways worth naming:</p>
+<ul>
+  <li>Flaky networks and high latency — retries, offline caches.</li>
+  <li>Battery and bandwidth matter — small payloads, compression.</li>
+  <li>Push notifications instead of polling.</li>
+  <li>App versioning — old clients live forever; you can't force update.</li>
+</ul>
+<p>Best practices: versioned APIs (<code>/v1</code>, <code>/v2</code>); feature flags; a <code>/config</code> endpoint that returns min supported version so clients show upgrade screens; delta sync (client sends last sync token, server returns only changes); Protobuf for hot paths.</p>
+
+<h2 id="i2"><span class="num">31</span>Multi-Device Sync</h2>
+<h4>Conflict resolution</h4>
+<ul>
+  <li><strong>Last-write-wins</strong> — highest timestamp wins. Works for notes, settings.</li>
+  <li><strong>CRDTs</strong> — data types that mathematically converge under any merge order. Used by Figma, Linear, Apple Notes.</li>
+  <li><strong>Operational Transformation</strong> — each edit is an operation; concurrent ops are transformed against each other. Used by Google Docs.</li>
+</ul>
+<h4>Sync protocol</h4>
+<pre>GET /sync?since=&lt;token&gt; → server returns diff + new token
+POST /sync with local_ops → server acks + new token</pre>
+<p>Every item carries <code>(id, value, modified_at, modified_by_device, deleted_flag)</code>. Soft-delete via <code>deleted_flag</code>; never hard-delete until tombstone TTL.</p>
+<h4>Push over poll</h4>
+<p>Silent push (APNs/FCM) wakes the app, which then runs a <code>/sync</code>. Way better on battery than polling.</p>
+
+<h2 id="i3"><span class="num">32</span>Offline-First App</h2>
+<p>Four rules:</p>
+<ol>
+  <li>Local DB is the source of truth for the UI.</li>
+  <li>Mutations write to local DB first, then to an outbox for sync.</li>
+  <li>Outbox is durable across restarts.</li>
+  <li>UI shows optimistic state immediately; reconciles on server ack.</li>
+</ol>
+<figure><pre>
+  UI ──write──► Local DB (truth)
+              ─► Outbox (durable queue of mutations)
+                     │ when online
+                     ▼
+                Sync Engine ↔ Server
+</pre></figure>
+<p>Battery-friendly sync triggers: app foreground, significant location change, silent push, network changed cellular → Wi-Fi.</p>
+
+<h2 id="i4"><span class="num">33</span>Push Notifications (Deep Dive)</h2>
+<h4>iOS — APNs</h4>
+<p>Server holds a <code>.p8</code> auth key. Device gets a device token from APNs at app launch and uploads it. Server sends to APNs's HTTP/2 endpoint with <code>{device_token, payload}</code>.</p>
+<h4>Android — FCM</h4>
+<p>Same shape with FCM tokens and the FCM Admin SDK.</p>
+<h4>Constraints</h4>
+<p>APNs and FCM: 4KB payload max. For rich content, iOS uses a Notification Service Extension to download images after delivery.</p>
+<h4>Token lifecycle</h4>
+<p>Tokens rotate on uninstall/reinstall/device restore. Server must dedup per user. Treat 410 Gone / Unregistered as terminal — delete the token.</p>
+<h4>Silent notifications</h4>
+<p>iOS <code>content-available: 1</code> wakes the app briefly with no UI — the standard mechanism for background sync.</p>
+
+<h2 id="i5"><span class="num">34</span>BLE / Wi-Fi Device Setup</h2>
+<p>Common flow for a headless smart device (kettle, scale, thermostat):</p>
+<ol>
+  <li>Device boots into setup mode → advertises BLE.</li>
+  <li>App scans, finds it, connects (encrypted with ECDH).</li>
+  <li>App reads visible SSIDs from device.</li>
+  <li>User picks SSID + enters password in the app.</li>
+  <li>App sends Wi-Fi creds over BLE.</li>
+  <li>Device disconnects BLE, joins Wi-Fi, calls <code>/claim</code>.</li>
+  <li>App confirms ownership via a one-time code read over BLE.</li>
+</ol>
+<h4>Security musts</h4>
+<p>No plaintext credentials over BLE. Device certificates pre-provisioned at factory or JITP via AWS IoT. Replay protection via nonces. Claim flow proves ownership to the cloud.</p>
+<h4>State machine</h4>
+<pre>UNCLAIMED → SETUP_MODE → WIFI_CONNECTING → CLOUD_CONNECTING → CLAIMED → ONLINE</pre>
+
+<h2 id="i6"><span class="num">35</span>IoT Telemetry Pipeline</h2>
+<figure><pre>
+  Devices ──MQTT──► Broker ──► IoT Gateway (auth, dedup, rate limit)
+                                         │
+                                         ▼
+                                       Kafka
+                        ┌──────────────┼──────────────┐
+                        ▼              ▼              ▼
+                  Stream Proc     Time-Series DB   Cold Storage
+                  (Flink)         (Influx)         (S3 / Parquet)
+                  alerts + agg    dashboards       ML training
+</pre></figure>
+<h4>Why MQTT for IoT</h4>
+<p>Designed for unreliable networks. Persistent sessions (broker buffers while device offline). QoS levels (0 fire-and-forget, 1 at-least-once, 2 exactly-once). Tiny headers.</p>
+<h4>Backpressure</h4>
+<p>MQTT broker buffers; Kafka absorbs spikes with days of retention; consumers scale horizontally per partition. Devices buffer locally on disconnect and flush on reconnect (small ring buffer in flash).</p>
+<h4>Cost knobs</h4>
+<p>Sample rate, aggregation tiers (raw 30d → 1-min avg forever), compression (Parquet + zstd for cold).</p>
+
+<h2 id="i7"><span class="num">36</span>Time-Series Data Storage</h2>
+<p>Time-series DBs (InfluxDB, Timescale, Prometheus) are optimized for append-only writes and range-over-time + group-by-tag queries. Internals:</p>
+<ul>
+  <li><strong>Chunks by time</strong> — a "hypertable" is partitioned by time (e.g. 1-day chunks).</li>
+  <li><strong>Columnar storage</strong> — timestamps and values stored in columns, great compression.</li>
+  <li><strong>Delta / delta-of-delta encoding</strong> — timestamps often at regular intervals, so store the diff of diffs. Facebook's Gorilla gets ~1.4 bytes/sample.</li>
+  <li><strong>Retention policies</strong> — drop chunks older than N days automatically.</li>
+</ul>
+<p>Don't use a TSDB for heavy updates or high-cardinality dimensions (like <code>user_id</code> as a tag — cardinality explodes).</p>
+
+<h2 id="i8"><span class="num">37</span>OTA Firmware Update</h2>
+<h4>Requirements</h4>
+<p>Push new firmware to a fleet safely. Staged rollout (1% → 10% → 100%). Rollback on failure. No bricks. Signed images.</p>
+<h4>Device flow</h4>
+<ol>
+  <li>Device polls <code>/firmware/check?fw=&amp;hw=&amp;serial=</code>.</li>
+  <li>Server applies rollout rules → returns a manifest or "no update."</li>
+  <li>Device verifies manifest signature.</li>
+  <li>Downloads image in chunks (resumable). Verifies SHA-256 + image signature.</li>
+  <li>Writes to <em>inactive</em> partition (A/B partitions).</li>
+  <li>Sets boot flag → reboot.</li>
+  <li>New firmware runs a self-check; if OK, marks itself confirmed. If it fails to check in within N reboots, bootloader rolls back to the previous partition.</li>
+</ol>
+<h4>Staged rollout</h4>
+<p>Bucket each device by <code>hash(serial) % 100</code>. Server says "give me 2.4.0 only if bucket &lt; 10." Watch crash and return metrics; expand bucket.</p>
+<h4>Why A/B partitions</h4>
+<p>Atomic switch (change boot pointer). Rollback = boot the other partition. Never overwrite the running firmware.</p>
+
+<h2 id="i9"><span class="num">38</span>Device Provisioning</h2>
+<p>Lifecycle: factory-provisioned (serial + unique key + cert) → shipped → first-time onboarding → claimed → operational → decommissioned. The claim flow proves ownership: device signs an identity challenge with its factory key; app confirms with a one-time code read over BLE. Multi-tenant isolation via mTLS with per-device certs and per-device IAM policies.</p>
+
+<!-- ================= PART 4 ================= -->
+<div class="part-header">Part 4 — Low-Level Design (LLD)</div>
+
+<h2 id="l1"><span class="num">39</span>OOP Essentials</h2>
+<p>An object bundles <em>state</em> (fields) with <em>behavior</em> (methods). The four pillars:</p>
+<ul>
+  <li><strong>Encapsulation</strong> — hide internals behind methods.</li>
+  <li><strong>Abstraction</strong> — expose what, hide how.</li>
+  <li><strong>Inheritance</strong> — extend a class. Use sparingly; prefer composition.</li>
+  <li><strong>Polymorphism</strong> — same interface, different behavior.</li>
+</ul>
+<h4>UML shorthand for interviews</h4>
+<pre>- private   + public   # protected
+◇── composition   ◆── aggregation
+──▷ inheritance   ---▶ association</pre>
+
+<h2 id="l2"><span class="num">40</span>SOLID</h2>
+<ul>
+  <li><strong>S — Single Responsibility.</strong> One reason to change per class.</li>
+  <li><strong>O — Open/Closed.</strong> Open for extension, closed for modification. Add a new payment type by implementing an interface, not editing a switch.</li>
+  <li><strong>L — Liskov Substitution.</strong> Subtypes must work anywhere the base type does. The classic <code>Square extends Rectangle</code> pitfall violates this.</li>
+  <li><strong>I — Interface Segregation.</strong> Don't force clients to depend on methods they don't use. Prefer many small interfaces.</li>
+  <li><strong>D — Dependency Inversion.</strong> Depend on abstractions, not concretions. Inject dependencies rather than <code>new</code>-ing them inside a class.</li>
+</ul>
+
+<h2 id="l3"><span class="num">41</span>Design Patterns Worth Knowing</h2>
+<h4>Creational</h4>
+<p><strong>Singleton</strong> — one instance (use sparingly, prefer DI). <strong>Factory</strong> — encapsulate object creation. <strong>Builder</strong> — step-by-step construction. <strong>Prototype</strong> — clone an existing instance.</p>
+<h4>Structural</h4>
+<p><strong>Adapter</strong> — make an incompatible interface fit. <strong>Decorator</strong> — wrap to add behavior. <strong>Facade</strong> — single front door over a complex subsystem. <strong>Proxy</strong> — stand-in (lazy load, access control, remote). <strong>Composite</strong> — tree structures where leaves and containers share an interface.</p>
+<h4>Behavioral</h4>
+<p><strong>Observer</strong> — subject notifies subscribers on change. <strong>Strategy</strong> — interchangeable algorithms via an interface. <strong>State</strong> — behavior varies with internal state, replacing large switch statements. <strong>Command</strong> — wrap an action as an object (enables undo, queueing). <strong>Iterator</strong> — uniform traversal. <strong>Template Method</strong> — base class defines skeleton, subclasses fill steps. <strong>Chain of Responsibility</strong> — request travels a chain until one handler handles it (middleware).</p>
+
+<h2 id="l4"><span class="num">42</span>Dependency Injection &amp; Architectures</h2>
+<h4>DI</h4>
+<p>Don't construct dependencies inside a class; pass them in. Enables testing with fakes:</p>
+<pre><code>class OrderService:
+    def __init__(self, repo: OrderRepo, mailer: Mailer):
+        self.repo = repo
+        self.mailer = mailer</code></pre>
+
+<h4>MVC / MVVM / Clean</h4>
+<ul>
+  <li><strong>MVC</strong> — Model, View, Controller. View → Controller → Model → View.</li>
+  <li><strong>MVVM</strong> — ViewModel exposes observable state; View binds to it. Testable without UI. iOS/SwiftUI default.</li>
+  <li><strong>Clean Architecture</strong> — layers with dependencies pointing inward: UI → adapters → use cases → entities. Use cases depend on interfaces the outer layers implement.</li>
+</ul>
+
+<h2 id="l5"><span class="num">43</span>Thread Safety</h2>
+<p>Terms: race condition, critical section, mutex, semaphore, atomic, RWLock, lock-free.</p>
+<p>Patterns: bounded producer-consumer queue; reader-writer split (many readers, one writer); immutability (immutable objects are free to share). Pitfalls: deadlock (fix: acquire locks in a global order), livelock, starvation, false sharing.</p>
+
+<h2 id="l6"><span class="num">44</span>LLD Problem Catalog (Short Sketches)</h2>
+
+<h4>Parking Lot</h4>
+<p>Classes: <code>ParkingLot</code> owning floors, <code>Floor</code> owning <code>Slot</code>s, <code>Vehicle</code> hierarchy (motorcycle/car/truck), <code>Ticket</code>, <code>FeeCalculator</code>. Slot types (S/M/L) determine which vehicles fit. <code>FeeCalculator</code> is a Strategy (hourly, flat, peak). <code>findAvailableSlot</code> is O(1) with a per-floor <code>Queue&lt;Slot&gt;</code> per type.</p>
+
+<h4>Elevator</h4>
+<p><code>ElevatorSystem</code>, <code>Elevator</code>, <code>Scheduler</code> (Strategy — nearest idle, or LOOK). Each <code>Elevator</code> has state (idle/up/down/doors_open) and a request queue. The LOOK algorithm — go all the way in one direction picking up consistent-direction requests, then reverse — is the interview-friendly answer.</p>
+
+<h4>Splitwise</h4>
+<p><code>User</code>, <code>Group</code>, <code>Expense</code> with <code>SplitStrategy</code> (equal / exact / percentage). Balance sheet: <code>Map&lt;User, Map&lt;User, Decimal&gt;&gt;</code>. Settling with minimum transactions is NP-hard in general; a greedy "biggest creditor pays biggest debtor" gives near-optimal.</p>
+
+<h4>Chess</h4>
+<p><code>Game</code>, <code>Board</code>, <code>Piece</code> abstract with each type overriding <code>validMoves</code>. <code>Move</code> as a Command (enables undo, history). Depth to score: castling, en-passant, promotion, check/checkmate detection.</p>
+
+<h4>ATM</h4>
+<p>Great fit for the State pattern. <code>ATMSession</code> transitions Idle → CardInserted → PinEntered → Authenticated → TransactionInProgress. Each state handles inputs differently. <code>CashDispenser</code> greedy-dispenses from largest denomination.</p>
+
+<h4>Logger</h4>
+<p><code>Logger</code> with a list of <code>LogAppender</code>s (Console, File, Network). <code>LogFormatter</code> Strategy. Async logging via a Decorator: background thread + queue + drain. Must be thread-safe.</p>
+
+<h4>File System</h4>
+<p><code>INode</code> abstract with <code>File</code> and <code>Directory</code> subclasses. Directory holds <code>Map&lt;String, INode&gt;</code> — pure Composite pattern. <code>size()</code> on Directory recursively sums children.</p>
+
+<h4>Vending Machine</h4>
+<p>State pattern (NoSelection → ItemSelected → HasMoney → Dispensing). Coin manager handles change like the ATM's cash dispenser.</p>
+
+<h4>Rate Limiter (LLD)</h4>
+<p><code>RateLimiter</code> interface with <code>allow(key): bool</code>. Token bucket per key, thread-safe via atomics or per-key locks. Fixed and sliding window as alternate implementations.</p>
+
+<h4>Library Management</h4>
+<p>Distinguish <code>Book</code> (logical title) from <code>BookCopy</code> (physical instance). <code>Loan</code> ties member to copy with due date. Fine calculation is a Strategy.</p>
+
+<!-- ================= PART 5 ================= -->
+<div class="part-header">Part 5 — Interview Execution</div>
+
+<h2 id="e1"><span class="num">45</span>The 45-Minute System-Design Playbook</h2>
+<pre>0:00–0:05  CLARIFY
+   Features? Read-heavy or write-heavy? DAU? Peak QPS?
+   Latency target? Consistency needs? Mobile + web + geos?
+   Get a nod on the agreed scope before drawing anything.
+
+0:05–0:10  ESTIMATE
+   QPS = DAU × requests-per-user-per-day / 86400
+   Storage = items × size × retention
+   State assumptions clearly; round generously.
+
+0:10–0:20  HIGH-LEVEL
+   Draw client, gateway/LB, services, DBs, cache, queue.
+   Trace the main use case through the boxes.
+   Name techs with brief justification.
+   Ask: "Anything in particular you'd like me to focus on?"
+
+0:20–0:35  DEEP-DIVE
+   Pick 1–2 components. Schema with columns.
+   Sharding key, replication, indexes.
+   A concrete algorithm. A specific failure + recovery.
+
+0:35–0:42  SCALE &amp; FAIL
+   10× the load — what breaks first?
+   Primary DB dies — how do we recover?
+   Region outage — do we go down?
+
+0:42–0:45  WRAP
+   Recap trade-offs. Name 1–2 things you'd improve.
+   Invite follow-up.</pre>
+
+<h4>Phrases that score</h4>
+<ul>
+  <li>"I'm assuming X for now — flag if you want me to dig in."</li>
+  <li>"Trade-off is Y vs Z. I'd pick Y because…"</li>
+  <li>"If we needed exactly-once instead of at-least-once, I'd change this to…"</li>
+</ul>
+<h4>Phrases that lose points</h4>
+<ul>
+  <li>"I'd just use MongoDB." (no justification)</li>
+  <li>Long silences — think out loud.</li>
+  <li>Drawing 12 boxes and never going deep on any of them.</li>
+</ul>
+
+<h2 id="e2"><span class="num">46</span>The 45-Minute LLD Playbook</h2>
+<pre>0:00–0:05  Clarify scope + main entities + interaction surface.
+0:05–0:10  Identify entities from the nouns of the prompt. Group into classes; note relationships.
+0:10–0:20  Class diagram. Fields + methods. Mark interfaces / abstract. Show inheritance and composition. Call out 1–2 SOLID applications.
+0:20–0:35  Code the 2–3 most interesting methods for real. Handle edges. Discuss thread safety if relevant.
+0:35–0:42  Extend — "how would you add feature X?" Show your design accepts change without rewrites.
+0:42–0:45  Tests + wrap.</pre>
+<p>Patterns that answer ~80% of LLD prompts: <strong>Strategy</strong> (anything "calculate X / send via Y / rank by Z"), <strong>State</strong> (order, ride, payment, vending), <strong>Observer</strong> (notifications, dashboards), <strong>Factory</strong> (create one of many subtypes), <strong>Composite</strong> (folders, menus, expression trees), <strong>Decorator</strong> (logging, retry, encryption wrappers), <strong>Command</strong> (undo, queueable ops).</p>
+
+<h2 id="e3"><span class="num">47</span>Behavioral Stories</h2>
+<p>Use STAR: Situation, Task, Action, Result. Prepare 4–6 stories you can adapt to any leadership principle:</p>
+<ul>
+  <li>Simplifying a complex thing.</li>
+  <li>Owning an outcome end-to-end.</li>
+  <li>Disagreeing with a senior and how it resolved.</li>
+  <li>Shipping on a tight deadline.</li>
+  <li>Making a mistake and recovering.</li>
+  <li>Mentoring or cross-functional collaboration.</li>
+</ul>
+<p>Write each as: one-paragraph setup, one-paragraph action (specifics — techs, numbers, stakeholders), one-paragraph result (metrics if possible: "reduced setup failures from 18% to 3%").</p>
+
+<h2 id="e4"><span class="num">48</span>Common Rejection Reasons</h2>
+<ol>
+  <li>Jumping into design before clarifying scope.</li>
+  <li>Drawing 15 boxes, going deep on zero.</li>
+  <li>No trade-offs stated.</li>
+  <li>Hand-waving the hard part ("and then we shard it").</li>
+  <li>Ignoring failure modes.</li>
+  <li>Wrong DB for the job with no justification.</li>
+  <li>No capacity math.</li>
+  <li>Silence — the interviewer can't score what they can't hear.</li>
+  <li>Defensiveness on follow-ups. Every "what if" is a gift.</li>
+  <li>Memorized solution to a different question.</li>
+</ol>
+
+<h2 id="e5"><span class="num">49</span>30-Day Prep Plan</h2>
+<pre>Week 1 — FOUNDATIONS
+  Re-read Part 1. Then do URL shortener + Chat app end-to-end from memory.
+
+Week 2 — CLASSIC PROBLEMS
+  One a day: notifications, Uber, Instagram, Dropbox, YouTube,
+  typeahead + rate limiter. Cap with mock #1.
+
+Week 3 — DEPTH
+  Mobile backend, sync, offline, push deep dive, BLE setup,
+  IoT telemetry, OTA, provisioning. OOP + SOLID + patterns. Mock #2.
+
+Week 4 — POLISH
+  LLD problem catalog. Behavioral stories in STAR.
+  Two more mocks. Rest the last two days — sleep matters more
+  than one last re-read.</pre>
+
+<!-- ================= PART 6 ================= -->
+<div class="part-header">Part 6 — Case Studies (System Design Pyramid)</div>
+
+<h2 id="c1"><span class="num">50</span>WhatsApp</h2>
+<p>Two billion users, 100B+ messages/day, end-to-end encrypted. Built on Erlang/OTP — one box holds ~2M concurrent connections vs. ~100K on a typical stack. Custom XMPP-like protocol over a long-lived TCP socket. Signal protocol for E2E: session setup via X3DH, ongoing messages via Double Ratchet. Server is a blind relay — sees only ciphertext + metadata. Multi-device: each device has its own key pair; senders encrypt to each recipient device. Voice/video via WebRTC with TURN relays for NAT traversal.</p>
+
+<h2 id="c2"><span class="num">51</span>Twitter Timeline</h2>
+<p>Historical architecture: fan-out on write. On tweet, worker pushes the tweet ID to every follower's Redis list. Timeline read = one <code>LRANGE</code> + hydrate. Doesn't work for celebrities with 100M followers — one tweet becomes 100M writes. Hybrid solution: fan-out for normal users, mark celebrities so their tweets are merged in at read time. Tweets stored in Manhattan (Twitter's KV) keyed by tweet_id. Snowflake IDs give chronological order for free — 64 bits of (timestamp | machine | sequence).</p>
+
+<h2 id="c3"><span class="num">52</span>YouTube</h2>
+<p>Metadata on Vitess (sharded MySQL). Views/likes counters in Bigtable. Videos on cold blob storage, delivered via multi-CDN. Watch experience uses HLS/DASH adaptive bitrate. Recommendations use a two-tower model — one embedding for videos (title/captions/watch signal), one for users (history/context), cosine-similarity for candidate generation, then a deeper re-ranker on the top 500. Live streaming: RTMP ingest → cloud transcode → HLS segments → CDN, ~5–30s end-to-end latency.</p>
+
+<h2 id="c4"><span class="num">53</span>Uber ETA</h2>
+<p>Three stages, all under p99 100ms. <strong>Map matching</strong> — snap raw (lat, lng) to the nearest road segment. <strong>Routing</strong> — shortest path via Contraction Hierarchies on the road graph. <strong>ETA prediction</strong> — a learned model (gradient-boosted tree, then DeepETA transformer) that ingests time of day, recent traffic on each segment, historical traffic, weather, events, and the driver's current speed, and outputs predicted seconds. Real-time traffic comes from driver-phone speeds streamed into a feature store.</p>
+
+<h2 id="c5"><span class="num">54</span>Uber: Finding Nearby Drivers at 1M req/s</h2>
+<p>Cell-based indexing with Google S2 — the Earth is a hierarchical grid; each cell has a 64-bit ID ordered along a Hilbert curve so adjacent IDs are geographically nearby. Shard by cell-ID range. Driver positions live in RAM (Ringpop / DISCO), not in a DB — heartbeats every 4s update the home shard. Find-nearby queries hit the cell-index nodes for the S2 cells covering the search radius. p99 &lt; 10ms.</p>
+
+<h2 id="c6"><span class="num">55</span>Airbnb</h2>
+<p>Search + ranking + bookings + messaging in one product. Search: ElasticSearch on <code>geo_point</code>, price, amenities, per-listing availability calendar (one row per night, one year ahead). Booking is the hard consistency piece: transactionally flip all N target-nights from <code>available</code> → <code>held</code>; 15-minute hold while payment processes; on payment success, <code>held</code> → <code>booked</code>. Pricing includes host base + overrides + smart-pricing suggestion + fees + taxes computed at booking time. Trust and safety runs risk models per booking.</p>
+
+<h2 id="c7"><span class="num">56</span>Reddit</h2>
+<p>Big design problems: ranking (posts and comments), threaded comments at scale, vote fuzzing to defeat bots. <strong>Hot ranking</strong>: <code>log10(max(|score|,1)) × sign(score) + seconds/45000</code> — logarithmic diminishing returns on votes, linear time decay. <strong>Best</strong> comment ranking uses the Wilson-score lower bound — resistant to small-sample noise. Comments stored with <code>(post_id, parent_id, comment_id, score, created_at)</code>; hot subreddits get pre-computed feeds; smaller ones compute on demand.</p>
+
+<h2 id="c8"><span class="num">57</span>Google Search</h2>
+<p>Pipeline: crawl → index → serve → rank → snippet. Inverted index sharded by document — one query touches every shard in parallel; a slow shard is skipped past its budget. Ranking blends hundreds of signals (PageRank, BERT/MUM semantic match, click model, freshness, site quality, personalization). Tail latency control via backup requests (send to a replica after p50 hits). Total query budget ~200ms — the whole world of distributed systems compressed into one round trip.</p>
+
+<h2 id="c9"><span class="num">58</span>Amazon S3</h2>
+<p>"Eleven nines" durability via <strong>erasure coding</strong>, not plain replication. An object is split into K data chunks + M parity chunks (Reed-Solomon); any K of K+M recovers the object. ~1.4× storage overhead vs 3× for triple replication. Chunks are spread across racks and AZs. The service is three layers: request routers (auth, quota, index lookup) → a keymap service (bucket + key prefix → location) → storage nodes. Strong read-after-write consistency since 2020 via a coordinator-based read protocol.</p>
+
+<h2 id="c10"><span class="num">59</span>Kafka Internals</h2>
+<p>What makes it fast: append-only log on disk (sequential I/O is ~100× random on SSDs), zero-copy from page cache to socket via <code>sendfile</code>, batching + compression at the producer, and per-topic partitioning for parallel scale. Each partition has a leader and followers; ISR (in-sync replicas) determines who's eligible to become leader. Consumers track their own offsets in the <code>__consumer_offsets</code> topic. KRaft (Kafka's Raft) has replaced ZooKeeper for metadata in modern deployments.</p>
+
+<h2 id="c11"><span class="num">60</span>LLM Serving</h2>
+<p>Each new token = one full forward pass through billions of parameters. Prefill (first pass over the prompt) is compute-bound; decode (one token at a time) is memory-bandwidth-bound — different optimizations. Batching across requests keeps GPUs busy. KV cache stores past attention states so we don't re-compute them per token. Prompt-prefix caching helps when many users share a long system prompt. Speculative decoding: small draft model proposes tokens; big model verifies in parallel. Quantization (int8 / int4) cuts memory and cost.</p>
+
+<h2 id="c12"><span class="num">61</span>Stock Exchange</h2>
+<p>The order book is a pair of sorted structures (buys descending, sells ascending). Matching is <em>price-time priority</em>: best price wins, ties broken by arrival. Matching engines are single-threaded per symbol for determinism; symbols scale horizontally. p99 latency in tens of microseconds. Latency tricks used by HFT: kernel-bypass NICs (DPDK, Solarflare), FPGA matching, co-located racks inside the exchange, microwave links between exchange cities. Trades match in T+0; clearing and custody settle T+1 or T+2.</p>
+
+<h2 id="c13"><span class="num">62</span>Google Docs (Real-Time Collaboration)</h2>
+<p>Two concurrent inserts at the same position must converge to the same final state for every viewer. <strong>Operational Transformation</strong>: each edit is an operation; when two are concurrent, the server transforms each against the other so intent is preserved (Alice's insert at 0 and Bob's insert at 5 both land where they should). Server is the single source of truth for op order; snapshots the doc periodically so replay isn't from genesis. Presence + cursors broadcast on WebSocket. Offline edits are buffered locally and transformed on reconnect.</p>
+
+<h2 id="c14"><span class="num">63</span>Tinder</h2>
+<p>~7.5B swipes/day. Data model: <code>swipes</code> (write log), <code>matches</code> (derived), <code>profiles</code>. Candidate generation: geohash bucketing + ES filter + a personalization model re-ranking the top 100. Match detection on a right-swipe: insert the row, then check if the target already right-swiped me — that reverse lookup must be O(1) (Redis set <code>right_swipes_by:{target_id}</code>). Recent activity boosts ranking — Tinder wants matches to chat now.</p>
+
+<h2 id="c15"><span class="num">64</span>Nginx Internals</h2>
+<p>Event-driven architecture. A master process manages a handful of workers (usually one per CPU core). Each worker is single-threaded and uses <code>epoll</code>/<code>kqueue</code> to multiplex thousands of sockets. Memory per connection is tiny (~2KB), which is why one box handles 100K+ concurrent connections where Apache's thread-per-request model would collapse. Requests flow through configurable phases (post_read → rewrite → access → content → log). In reverse-proxy mode, Nginx maintains connection pools to upstreams and buffers slow clients so backends never see them.</p>
+
+<h2 id="c16"><span class="num">65</span>Real-Time Leaderboard</h2>
+<p>Redis sorted sets. <code>ZADD leaderboard:daily 1500 user:42</code>; <code>ZRANGE leaderboard:daily 0 99 REV</code> for the top 100; <code>ZREVRANK</code> for a user's rank. Insert and range are O(log N). For tens of millions of entries, shard by user_id bucket, keep local top-K per shard, and merge — accepting eventually-correct top-K, which is fine for display. Multiple leaderboards (daily, weekly, all-time, per-region) as separate keys. Persist via Redis AOF and periodic snapshots.</p>
+
+<h2 id="c17"><span class="num">66</span>Apple AirTags</h2>
+<p>An AirTag has no GPS or cellular. It broadcasts a rotating BLE beacon. Any nearby iPhone hears it, encrypts (its own GPS location + time) with the AirTag's rotating public key, and uploads to Apple. The owner's phone fetches the encrypted blobs for their AirTag's keys and decrypts locally — only the owner holds the private key. Apple servers store blobs they can't read. The helper iPhones don't know whose AirTag they reported. UWB takes over for cm-accurate direction when the owner is close. Anti-stalking: unknown AirTag alerts and audible sounds after prolonged separation.</p>
+
+<h2 id="c18"><span class="num">67</span>Vitess — YouTube's MySQL at Scale</h2>
+<p>YouTube's core metadata still runs on MySQL, sharded via Vitess (now CNCF open source). Applications write regular SQL to <strong>VTGate</strong>, a stateless proxy that parses the query and routes it to the right shard. <strong>VTTablet</strong> sits in front of each MySQL. Vitess provides transparent sharding, online resharding (split a shard live without downtime), connection pooling (thousands of app connections → handful of MySQL connections), query rewriting, and replication topology management. Take-away: sharding doesn't require abandoning SQL.</p>
+
+<!-- ================= APPENDIX ================= -->
+<div class="part-header">Appendix</div>
+
+<h2 id="a1"><span class="num">A1</span>Latency numbers every engineer should know</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Operation</th><th>Time</th></tr></thead>
+<tbody>
+<tr><td>L1 cache reference</td><td>1 ns</td></tr>
+<tr><td>Branch mispredict</td><td>3 ns</td></tr>
+<tr><td>L2 cache reference</td><td>4 ns</td></tr>
+<tr><td>Mutex lock/unlock</td><td>17 ns</td></tr>
+<tr><td>Main memory reference</td><td>100 ns</td></tr>
+<tr><td>Compress 1KB (Zippy)</td><td>2 μs</td></tr>
+<tr><td>Send 1KB over 1 Gbps</td><td>10 μs</td></tr>
+<tr><td>Read 4KB random from SSD</td><td>16 μs</td></tr>
+<tr><td>Read 1 MB seq from memory</td><td>3 μs</td></tr>
+<tr><td>Read 1 MB seq from SSD</td><td>49 μs</td></tr>
+<tr><td>Round trip in same datacenter</td><td>500 μs</td></tr>
+<tr><td>Read 1 MB seq from disk</td><td>825 μs</td></tr>
+<tr><td>Disk seek</td><td>2 ms</td></tr>
+<tr><td>Round trip CA → Netherlands</td><td>150 ms</td></tr>
+</tbody></table></div>
+<p>Handy conversions: 1 day ≈ 86,400 s ≈ 10⁵ s (for back-of-envelope). 1 million seconds ≈ 11.5 days. 1 billion seconds ≈ 31.7 years.</p>
+
+<h2 id="a2"><span class="num">A2</span>Default tech picks (when in doubt)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Need</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td>User data, transactions</td><td>PostgreSQL</td></tr>
+<tr><td>Cache, sessions, counters</td><td>Redis</td></tr>
+<tr><td>Search</td><td>ElasticSearch / OpenSearch</td></tr>
+<tr><td>Time series</td><td>InfluxDB / TimescaleDB</td></tr>
+<tr><td>Event log / fan-out</td><td>Kafka</td></tr>
+<tr><td>Task queue</td><td>SQS / RabbitMQ</td></tr>
+<tr><td>Blob storage</td><td>S3</td></tr>
+<tr><td>Static delivery</td><td>CloudFront / Cloudflare</td></tr>
+<tr><td>Push notifications</td><td>APNs (iOS), FCM (Android)</td></tr>
+<tr><td>IoT messaging</td><td>MQTT broker (HiveMQ / EMQX / AWS IoT)</td></tr>
+</tbody></table></div>
+
+<hr class="chapter-rule" />
+
+<p style="color:var(--muted); font-size:14px; text-align:center;">
+End of guide. The most reliable way to learn this material is to do mocks aloud — not another re-read.
+</p>
+
+  </main>
+</div>
